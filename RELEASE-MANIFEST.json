@@ -1,0 +1,314 @@
+{
+  "product": "鱼忆｜动态世界书与记忆",
+  "version": "1.1.1",
+  "kind": "install",
+  "status": "unpublished-candidate",
+  "licenseFileIncluded": false,
+  "files": [
+    {
+      "path": "COMPATIBILITY.md",
+      "bytes": 14156,
+      "sha256": "0c5b660c51bac3a963d8b414038540b675057dfa8c44dbc44781407c7ba90f8b"
+    },
+    {
+      "path": "INSTALL.md",
+      "bytes": 11264,
+      "sha256": "7db16a540134c2a2948e0d583e407c23d7e15465ea6ca6914b6587844a537c60"
+    },
+    {
+      "path": "README.md",
+      "bytes": 16311,
+      "sha256": "244fabb21d0b871212e3a4c4ee9d2cacfb52094005c411a19dcbca610983ca6d"
+    },
+    {
+      "path": "docs/public/CHANGELOG.md",
+      "bytes": 41326,
+      "sha256": "994a5e645410fc29545f7093c1552ebd3a8a44b4ddb74e438e65d7311ee0c0c6"
+    },
+    {
+      "path": "docs/public/FEEDBACK.md",
+      "bytes": 2067,
+      "sha256": "feebd458b5e07e2571bf9c6012bbcd7c676af192983ba665de662d927043b569"
+    },
+    {
+      "path": "index.js",
+      "bytes": 4538,
+      "sha256": "f8fdd8121c6f4cc268bbd0b65961540d03fc7b3a1e5903e81b93faf6d7752f07"
+    },
+    {
+      "path": "main.js",
+      "bytes": 11599,
+      "sha256": "cf7aaa19d0594d1ec4d36a145eb01bd983447a5452b7c6dbf765323a50faa8eb"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 333,
+      "sha256": "d129ced515cc93ec0fa1d81894efe3c7a4c3f40b1537b30d1ebaff95ecb72400"
+    },
+    {
+      "path": "recovery.html",
+      "bytes": 5930,
+      "sha256": "ad6c07029f33a70d8f83dd1175f87f5c72b58021fb4e898bd40c0e4df0ab90e9"
+    },
+    {
+      "path": "src/adapters/auxiliary-transport.js",
+      "bytes": 7104,
+      "sha256": "cf9a57601d57623ee869b8e9c06cf197f05528f71ef39cf474ee615f283c1c08"
+    },
+    {
+      "path": "src/adapters/luker.js",
+      "bytes": 1539,
+      "sha256": "0b6876b4ea008347188629b7af351721df19d60ecfb4be5cb5517f172b3ea9f6"
+    },
+    {
+      "path": "src/adapters/mvu.js",
+      "bytes": 10765,
+      "sha256": "026317aaf19c7f941e3588e83a08b2c1ff7f0631465e5fd46a03be43da8dba8d"
+    },
+    {
+      "path": "src/adapters/prompt-regex.js",
+      "bytes": 6662,
+      "sha256": "667a14e9328bc00aab75f08958fcf0bd53f9daa8e6620d0d1b42015f5af896b2"
+    },
+    {
+      "path": "src/adapters/settings.js",
+      "bytes": 2632,
+      "sha256": "7b98138efff400c6d81e71fcbdb8dfc32df2bf9e521bb3e3853333a806860416"
+    },
+    {
+      "path": "src/adapters/sillytavern.js",
+      "bytes": 73918,
+      "sha256": "aee64082cfc365ebd489b2df6980d6cfa0ad688f1a8ddf6531586f543de8c199"
+    },
+    {
+      "path": "src/adapters/tauritavern.js",
+      "bytes": 2635,
+      "sha256": "1649fdf775113809ba6bc0ebaf9106d5d8a4766c8ee61a5d01406ddfcbe52430"
+    },
+    {
+      "path": "src/agents/classification-pieces.js",
+      "bytes": 3477,
+      "sha256": "74205a2301110a303a924ec37ecd3fac83d6e0ecefd6ca02ff4967b9a5c048cc"
+    },
+    {
+      "path": "src/agents/client.js",
+      "bytes": 29567,
+      "sha256": "6e13b9f2cc0b911b2db628de6a724d341e4c5137f93baec6fdc4548efaff96fb"
+    },
+    {
+      "path": "src/agents/compact-plan.js",
+      "bytes": 4636,
+      "sha256": "8b4711357f6262e65056138c4950f7f6080faf743c68d6a7ade31030a8ca0e74"
+    },
+    {
+      "path": "src/agents/evidence-codec.js",
+      "bytes": 2080,
+      "sha256": "ba9bb9951129b3e06be941d118297ffec43898bb14838ccd3f1a04a83ec8626b"
+    },
+    {
+      "path": "src/agents/prescan.js",
+      "bytes": 2008,
+      "sha256": "77b2ce5d969fd25067080e6fd2d40063511d4c64ef9f51b72a641b39e96f71ab"
+    },
+    {
+      "path": "src/agents/preset-application.js",
+      "bytes": 5461,
+      "sha256": "9fb0519a8547ecc92b1c9a60c9ac87a90f453995e3ab73840433f2f6d9591ceb"
+    },
+    {
+      "path": "src/agents/preset-preferences.js",
+      "bytes": 5040,
+      "sha256": "4cff564e21276f5e672460b98ec990675d001dd5daddd498276f60a8f5bbd925"
+    },
+    {
+      "path": "src/agents/prompts.js",
+      "bytes": 16737,
+      "sha256": "5f8d915ad088a2650cf302bf6aaba1fb1f62e6bc68601ca7d25650c351568c5b"
+    },
+    {
+      "path": "src/agents/requests.js",
+      "bytes": 8097,
+      "sha256": "f0e9a2792f39af1a8fda5fc7f21c57869135847d8ddc00ee43c47af0f19b2eac"
+    },
+    {
+      "path": "src/agents/selection-codec.js",
+      "bytes": 2323,
+      "sha256": "c3e3922484906528a6219f114e39f2c9c505c8531a2e66da8fa1c3f4d1797d11"
+    },
+    {
+      "path": "src/agents/source-segments.js",
+      "bytes": 2706,
+      "sha256": "a211c6e6c3f5a83a095f3d96d4ccb632e462eadfcd31f6e108a81a4a5b39d406"
+    },
+    {
+      "path": "src/agents/stream-response.js",
+      "bytes": 6129,
+      "sha256": "91a588c319d04578ced3190fefc9f4464b35d8fe8b0877ecfa5e5eb79cacae58"
+    },
+    {
+      "path": "src/agents/tasks.js",
+      "bytes": 17729,
+      "sha256": "7175ebaa79e1ea5124eb17c044457e1317cda8d5e98e11726fc3e68500377ab3"
+    },
+    {
+      "path": "src/core/capacity.js",
+      "bytes": 2148,
+      "sha256": "ab1e42d4039d7152a37474e8a2afe600dfc7c10ded8f25edac1a65590fd2e9de"
+    },
+    {
+      "path": "src/core/content-hash.js",
+      "bytes": 3471,
+      "sha256": "1c0a02b0ca848e14f7c53300f801a0ae75f8e601d7c1f592cd2a81976caccfe8"
+    },
+    {
+      "path": "src/core/focus.js",
+      "bytes": 5583,
+      "sha256": "acf07d36815fc132af5d097ccc07bdcd2eb8687745f160635dd2afe739d48e45"
+    },
+    {
+      "path": "src/core/operations.js",
+      "bytes": 12221,
+      "sha256": "d0b8a28d7f46d12e5d3fe0925533e9276a33dacd264db420490f02b27df802b3"
+    },
+    {
+      "path": "src/core/source-book.js",
+      "bytes": 9482,
+      "sha256": "888936cd1ad600285812c04b199336b9146c2d8cb7977652ce2c59154b77c952"
+    },
+    {
+      "path": "src/core/state.js",
+      "bytes": 14382,
+      "sha256": "336409939130dc82eebd67ebb71b8274091d2e5d62c60d8a77d49a0c456d53a3"
+    },
+    {
+      "path": "src/core/storage-codec.js",
+      "bytes": 9544,
+      "sha256": "9201f49a7ed61f7a4a79a9e64298548afccfd1ca158c573b16b7f54f1b4ac7f3"
+    },
+    {
+      "path": "src/core/store.js",
+      "bytes": 38305,
+      "sha256": "48444e7d4a25aff9e9e0c00e4d7a97919e2d54b5c385c29a6a1ec31449bad150"
+    },
+    {
+      "path": "src/core/transfer.js",
+      "bytes": 3747,
+      "sha256": "21edb53dc730777601598c351715b98326d98f6f191e013e9497297ad7b04baf"
+    },
+    {
+      "path": "src/core/util.js",
+      "bytes": 1680,
+      "sha256": "a08b63461f3dbad4d693c254e3dc42aaed981fb83e8048f4a30c50417bf8f29f"
+    },
+    {
+      "path": "src/core/views.js",
+      "bytes": 18446,
+      "sha256": "dda43393cdb457b6dc6472b40ac0d8f80776731502a669096c565273a9f21f77"
+    },
+    {
+      "path": "src/core/window.js",
+      "bytes": 1211,
+      "sha256": "c0328112f93d948a8d6a63674d07de4127bf4ca0fc523e36b3d33d4224b29db0"
+    },
+    {
+      "path": "src/diagnostics/capture.js",
+      "bytes": 13058,
+      "sha256": "228a542c7fe14822cf4700cb5eed13a40cf0e62efa955df90cb26c1a98d0899b"
+    },
+    {
+      "path": "src/diagnostics/problem-export.js",
+      "bytes": 8445,
+      "sha256": "6a501265d4f22c0fae8d0c68474a8eee16796afc647978288ae9aab6a3fd911e"
+    },
+    {
+      "path": "src/diagnostics/prompt-preview.js",
+      "bytes": 14698,
+      "sha256": "bad53f53cd106dcb7c25fd975f8a15704ac4019954255bbd0bc4993547ddbeea"
+    },
+    {
+      "path": "src/diagnostics/trace-store.js",
+      "bytes": 12303,
+      "sha256": "b1d34a36638ca752c25e7d54479838b4886f15d29fcd0cce62ca9d0cf184ae35"
+    },
+    {
+      "path": "src/platform/abort.js",
+      "bytes": 2046,
+      "sha256": "76d8a1efa2c49eab99e904a478d21c66860c0bd87f3acff60e96d49c38a981b2"
+    },
+    {
+      "path": "src/rules/README.md",
+      "bytes": 3177,
+      "sha256": "975752703def7aa8b2b1993188bda1780432f82f42b078ec781e44f2d2962a3e"
+    },
+    {
+      "path": "src/rules/index.js",
+      "bytes": 11785,
+      "sha256": "1e4603a21325f3f1cb6f5c27fa6cf43974c268b6c269852825f61941638ac4a6"
+    },
+    {
+      "path": "src/runtime/controller.js",
+      "bytes": 188695,
+      "sha256": "461b575a245e5f665640aff31bad89635803b79317f9bb497b09f30cce48dff1"
+    },
+    {
+      "path": "src/runtime/lazy-mode.js",
+      "bytes": 7677,
+      "sha256": "93d6b3fd602c05ba11ed200d53956426bc938702a7c3797ae090324064154942"
+    },
+    {
+      "path": "src/runtime/prompt-plan.js",
+      "bytes": 5766,
+      "sha256": "00cb7f16e5fcd7db96fb803220080d9d7bf9aea8ea0a5e0e59ab6fa73a6a355f"
+    },
+    {
+      "path": "src/ui/activity.js",
+      "bytes": 8653,
+      "sha256": "9be475c52aa80a81383fbcd76195279e952ab848a603aadd83a41241aa28659f"
+    },
+    {
+      "path": "src/ui/diff.js",
+      "bytes": 4403,
+      "sha256": "b8b69a558097ecb039a7ae2a5ac96ecfb635d4885a4bda27979becfa542a3388"
+    },
+    {
+      "path": "src/ui/floating-manager.js",
+      "bytes": 24580,
+      "sha256": "93c72c75c96f675da2dc9915a6488f1edf6ec115c9988928f5e709162c778fe8"
+    },
+    {
+      "path": "src/ui/lazy-copy.js",
+      "bytes": 14722,
+      "sha256": "449fa2e67db08613d889866b989edf9becbf7cd2458928d0ff2601a1975635b5"
+    },
+    {
+      "path": "src/ui/panel.js",
+      "bytes": 145027,
+      "sha256": "247c32e705a90e7c425c238a36620a03bc7231d111ba17ef193a7233d6ac14f0"
+    },
+    {
+      "path": "src/ui/prompt-preview.js",
+      "bytes": 11424,
+      "sha256": "bd41ee7282774750d99b92f8abd2dffbe93daa44bae680c806f610c7ff82c84c"
+    },
+    {
+      "path": "src/ui/style.css",
+      "bytes": 43961,
+      "sha256": "3ce65deb664a8310bc4f3efb2776fdc98ef15e25db414530954cf6d962f1c955"
+    },
+    {
+      "path": "src/ui/toolbar-entry.js",
+      "bytes": 2132,
+      "sha256": "0d64bf58376e3e15d8b2d436c3b3997f8f2f93ccac1f7c0b6f91b4e4048ca33c"
+    },
+    {
+      "path": "src/ui/trace-viewer.js",
+      "bytes": 29212,
+      "sha256": "c79ca619c995f0a94734030962911f5faa5b8f99330dce502971cbdb62dce702"
+    },
+    {
+      "path": "style.css",
+      "bytes": 11269,
+      "sha256": "b7740821a1caf4b9aa3fe14f2e3748e73d862b9983c38fe1fd9d0cad77cbe015"
+    }
+  ]
+}

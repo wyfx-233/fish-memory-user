@@ -1,0 +1,237 @@
+import { clone, invariant, plainText, uid } from './util.js';
+
+// Development format v2 stores one story path and compact journal anchors.
+export const SCHEMA_VERSION = 2;
+export const KINDS = ['fact', 'rule', 'npc', 'npc_pool', 'event', 'inventory'];
+export const MAINTENANCE_EVERY_MAX = 1000;
+export const DEFAULT_SETTINGS = Object.freeze({
+    enabled: true,
+    lazyMode: false,
+    inventoryEnabled: true,
+    windowEnabled: true,
+    // 'worldbook' keeps only dynamic entries plus selection: no summary, events or inventory.
+    memoryMode: 'full',
+    // 'append' adds a short paragraph per batch; 'rewrite' rewrites the whole summary.
+    summaryMode: 'append',
+    // Independent worldbook classification batches sent at the same time.
+    scanConcurrency: 3,
+    // Thinking effort for auxiliary tasks; 'inherit' follows the story preset.
+    auxReasoningEffort: 'low',
+    auxiliaryStream: false,
+    recentTurns: 12,
+    batchChars: 18000,
+    // Initialization history batches. Each batch carries fixed memory overhead,
+    // so fewer, larger batches cost less than per-turn sized ones.
+    historyBatchChars: 40000,
+    maintenanceEvery: 3,
+    timeoutMs: 300000,
+    initializationTimeoutMs: 1800000,
+    timeoutSettingsVersion: 1,
+    auditLimit: 100,
+    compactEvery: 20,
+    selectionLimit: 16,
+    selectionChars: 24000,
+    compactChars: 48000,
+    // The running summary is a player-facing outline, not a sent block.
+    // -1 = never send it, 0 = send all of it, N > 0 = send only the last N characters.
+    summaryChars: -1,
+    mvuEnabled: false,
+    mvuFields: [],
+    mvuBookName: null,
+});
+
+export function validTimeout(value) {
+    return Number.isInteger(value) && (value === 0 || (value >= 1000 && value <= 86400000));
+}
+
+/** Upgrade only the old implicit defaults; retain custom limits and explicit unlimited waits. */
+export function normalizeTimeoutSettings(settings = {}) {
+    const normalized = { timeoutSettingsVersion: 1 };
+    for (const [key, previousDefault] of [['timeoutMs', 90000], ['initializationTimeoutMs', 180000]]) {
+        const value = settings[key];
+        normalized[key] = validTimeout(value) && (settings.timeoutSettingsVersion === 1 || value !== previousDefault)
+            ? value : DEFAULT_SETTINGS[key];
+    }
+    return normalized;
+}
+
+export const GLOBAL_SCOPE = 'global';
+export function normalizeScopeId(value = GLOBAL_SCOPE) {
+    invariant(typeof value === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,159}$/.test(value)
+        && !['constructor', 'prototype', '__proto__'].includes(value), '资料范围 scopeId 无效');
+    return value;
+}
+export function entryScope(entry) { return normalizeScopeId(entry.scopeId); }
+export function scopeSummary(data, scopeId = GLOBAL_SCOPE) {
+    return scopeId === GLOBAL_SCOPE ? data.summary : (data.scopeSummaries?.[normalizeScopeId(scopeId)] ?? '');
+}
+export function scopeInventory(data, scopeId = GLOBAL_SCOPE) {
+    return scopeId === GLOBAL_SCOPE ? data.inventory : (data.scopeInventories?.[normalizeScopeId(scopeId)] ?? []);
+}
+export function readableScopes(context) {
+    return new Set([GLOBAL_SCOPE, normalizeScopeId(context?.activeScopeId), ...(context?.requestedScopeIds ?? []).map(normalizeScopeId)]);
+}
+export function sourceId(book, id) { return `source:${encodeURIComponent(book)}:${id}`; }
+export function entryText(entry) { return entry.segments.map(s => s.text).join(''); }
+/** Player-set tier for an entry: always sent, chosen by selection, or unused.
+ * Absent means the scanned flags decide (source blue lamp, important NPC,
+ * source disable). The tier only changes this save's dynamic copy. */
+export const TIERS = Object.freeze(['constant', 'onDemand', 'off']);
+export function scannedTier(entry) {
+    return !entry?.enabled ? 'off' : entry.constant || entry.important ? 'constant' : 'onDemand';
+}
+export function entryTier(entry) { return TIERS.includes(entry?.tier) ? entry.tier : scannedTier(entry); }
+export const canCompactEntry = entry => Boolean(entry?.enabled && !entry.source && entry.origin !== 'import' && ['fact', 'npc', 'npc_pool', 'event'].includes(entry.kind) && entry.segments.every(s => s.writable));
+export const alwaysSent = entry => entryTier(entry) === 'constant';
+/** Tier under an author `gate`: the gate yields to a source blue lamp or a
+ * player-set constant, not to the scan's guess that an entry is important. */
+export function gatedTier(entry) {
+    const tier = entryTier(entry);
+    return tier === 'constant' && !entry.tier && !entry.constant ? 'onDemand' : tier;
+}
+
+export function createEntry(input) {
+    invariant(input && typeof input === 'object', '条目不能为空');
+    const entry = {
+        id: input.id ?? uid('entry'),
+        scopeId: normalizeScopeId(input.scopeId),
+        title: plainText(input.title ?? '', '条目名称', 500),
+        kind: input.kind ?? 'fact',
+        intro: plainText(input.intro ?? '', '简介', 2000),
+        retrieveWhen: plainText(input.retrieveWhen ?? '', '提取指导', 4000),
+        constant: Boolean(input.constant),
+        enabled: input.enabled !== false,
+        important: Boolean(input.important),
+        segments: clone(input.segments ?? [{ id: 'body', text: input.text ?? '', writable: input.kind !== 'rule' }]),
+        source: input.source ? clone(input.source) : null,
+        evidence: clone(input.evidence ?? []),
+        lastEvidence: clone(input.lastEvidence ?? input.evidence ?? []),
+        evidenceTrimmed: Boolean(input.evidenceTrimmed),
+        lineage: clone(input.lineage ?? []),
+        version: input.version ?? 1,
+        status: input.status ?? 'confirmed',
+        needsReview: Boolean(input.needsReview),
+        ...(TIERS.includes(input.tier) ? { tier: input.tier } : {}),
+        // Player-imported history: not generated from any reply, so it survives rerolls.
+        ...(input.origin === 'import' ? { origin: 'import' } : {}),
+        // The auxiliary provider refused to scan it; sent as the original book does.
+        ...(input.scanBlocked === true ? { scanBlocked: true } : {}),
+        ...(input.scanPiece ? {scanPiece: clone(input.scanPiece)} : {}),
+    };
+    invariant(KINDS.includes(entry.kind), `未知条目类型：${entry.kind}`);
+    invariant(typeof entry.id === 'string' && entry.id.length < 1000, '无效条目身份');
+    invariant(Array.isArray(entry.segments) && entry.segments.length > 0 && entry.segments.length <= 4096, '条目必须包含 1–4096 个片段');
+    invariant(Array.isArray(entry.lineage) && entry.lineage.length <= 10000
+        && entry.lineage.every(id => typeof id === 'string' && id.length > 0 && id.length < 1000)
+        && new Set(entry.lineage).size === entry.lineage.length, '事件来源链无效');
+    const ids = new Set();
+    for (const segment of entry.segments) {
+        invariant(typeof segment.id === 'string' && !ids.has(segment.id), '片段身份缺失或重复');
+        ids.add(segment.id);
+        plainText(segment.text, '片段正文');
+        invariant(typeof segment.writable === 'boolean', '片段须有明确写权限');
+        if (entry.kind === 'rule') segment.writable = false;
+    }
+    return entry;
+}
+
+export function createSave(chatId, bookName) {
+    const data = { entries: {}, summary: '', strategy: '', inventory: [], inventoryEnabled: true,
+        scopeSummaries: {}, scopeInventories: {}, scopeContext: null, messageScopes: {} };
+    return {
+        schema: SCHEMA_VERSION, id: uid('save'), chatId, bookName,
+        revision: 0, initialized: false, preferences: { enabled: true }, base: clone(data), data,
+        processed: [], rememberedKeys: [], storyKeys: [], journal: [], audit: [], inventoryDisabledAt: null,
+        parentId: null, createdAt: new Date().toISOString(),
+    };
+}
+
+export function validateSave(save) {
+    invariant(save?.schema === SCHEMA_VERSION, '不支持的存档格式，请勿覆盖现有数据');
+    invariant(typeof save.id === 'string' && Number.isInteger(save.revision), '存档身份无效');
+    invariant(Array.isArray(save.processed) && Array.isArray(save.storyKeys) && Array.isArray(save.journal) && Array.isArray(save.audit), '存档进度无效');
+    invariant(save.processed.length <= save.storyKeys.length && save.processed.every((key, i) => key === save.storyKeys[i]), '已处理进度与剧情路径不符');
+    if (save.rememberedKeys !== undefined) {
+        const processed = new Set(save.processed);
+        invariant(Array.isArray(save.rememberedKeys) && save.rememberedKeys.every(key => typeof key === 'string' && processed.has(key)), '已阅读楼层记录无效');
+    }
+    for (const commit of save.journal) {
+        invariant(Number.isInteger(commit.anchorLength) && commit.anchorLength >= 0 && commit.anchorLength <= save.storyKeys.length, '提交锚点无效');
+        invariant(commit.endKey === (commit.anchorLength ? save.storyKeys[commit.anchorLength - 1] : null), '提交末端与剧情路径不符');
+        invariant(commit.inventoryDisabledAt === null || Number.isInteger(commit.inventoryDisabledAt), '物品停用进度无效');
+    }
+    for (const [scopeId, summary] of Object.entries(save.data.scopeSummaries ?? {})) { normalizeScopeId(scopeId); plainText(summary, '范围脉络'); }
+    for (const [scopeId, items] of Object.entries(save.data.scopeInventories ?? {})) { normalizeScopeId(scopeId); invariant(Array.isArray(items), '范围物品无效'); }
+    for (const scopeId of Object.values(save.data.messageScopes ?? {})) normalizeScopeId(scopeId);
+    if (save.data.scopeContext) {
+        normalizeScopeId(save.data.scopeContext.activeScopeId);
+        invariant(typeof save.data.scopeContext.owner === 'string' && Array.isArray(save.data.scopeContext.requestedScopeIds), '范围上下文无效');
+        save.data.scopeContext.requestedScopeIds.forEach(normalizeScopeId);
+    }
+    for (const entry of Object.values(save.data.entries)) {
+        createEntry(entry);
+        invariant(entry.kind !== 'rule' || entry.segments.every(segment => segment.writable === false), '规则条目不可写');
+        if (entry.source?.baselineSegments) {
+            invariant(Array.isArray(entry.source.baselineSegments)
+                && entry.source.baselineSegments.every(segment => typeof segment.text === 'string' && typeof segment.writable === 'boolean')
+                && entry.source.baselineSegments.map(segment => segment.text).join('') === entry.source.original,
+            '原书分类基准无效');
+        }
+    }
+    for (const [id, held] of Object.entries(save.sourceHeld ?? {})) {
+        const next = createEntry(held?.next);
+        invariant(next.id === id && next.source && save.data.entries[id]?.source
+            && next.source.book === save.data.entries[id].source.book
+            && String(next.source.uid) === String(save.data.entries[id].source.uid), '待决定的来源条目无效');
+        invariant(entryText(next) === next.source.original && Array.isArray(next.source.baselineSegments)
+            && next.source.baselineSegments.map(segment => segment.text).join('') === next.source.original, '待决定的来源基线不完整');
+    }
+    return save;
+}
+
+/** Exact source slices, never cut a UTF-16 surrogate pair or discard bytes. */
+export function splitSourceText(text, size = 100000) {
+    invariant(typeof text === 'string', '源正文必须是文本');
+    invariant(Number.isInteger(size) && size >= 2 && size <= 100000, '源正文片段大小无效');
+    const segments = [];
+    for (let start=0; start<text.length;) {
+        let end=Math.min(text.length,start+size);
+        if (end<text.length && /[\uD800-\uDBFF]/.test(text[end-1]) && /[\uDC00-\uDFFF]/.test(text[end])) end--;
+        segments.push({id:segments.length?`body-${segments.length}`:'body',text:text.slice(start,end),writable:false});start=end;
+    }
+    return segments.length?segments:[{id:'body',text:'',writable:false}];
+}
+
+export function makeSourceEntry(book, raw) {
+    for (const [field, value, limit] of [['title', raw.comment || `条目 ${raw.uid}`, 500], ['body', raw.content ?? '', 10000000]]) {
+        if (typeof value !== 'string' || value.length > limit) {
+            const info = { book: String(book), uid: String(raw.uid), title: String(raw.comment || `条目 ${raw.uid}`).slice(0, 500), field, length: typeof value === 'string' ? value.length : null, limit };
+            const label = field === 'title' ? '条目名称' : '源条目正文';
+            throw Object.assign(new Error(`${label} 必须是长度不超过 ${limit} 的文本；条目 ${String(raw.uid)}（${info.title.slice(0,80)}），${info.length === null ? '当前字段不是文本' : `实际 ${info.length} 字符`}。原资料保留。`), { dwmEntryError: info });
+        }
+    }
+    return createEntry({
+        id: sourceId(book, raw.uid), title: raw.comment || `条目 ${raw.uid}`,
+        text: raw.content ?? '', enabled: !raw.disable, constant: raw.constant,
+        source: { book, uid: raw.uid, original: raw.content ?? '', metadata: clone(raw) },
+        // Initialization must classify before this entry can be maintained.
+        segments: splitSourceText(raw.content ?? ''),
+        needsReview: true,
+    });
+}
+
+export function assertOriginalPreserved(before, after) {
+    for (const [id, entry] of Object.entries(before.entries)) {
+        if (entry.source) invariant(JSON.stringify(entry.source) === JSON.stringify(after.entries[id]?.source), '维护不能修改原书基准');
+    }
+}
+
+/** Player-facing reason the Prompt Template dependency is not ready. */
+export function templateHint(status) {
+    return ({
+        disabled: '提示词模板（ST-Prompt-Template）在扩展管理里被停用了，请勾选启用后刷新酒馆',
+        'switch-off': '提示词模板已加载，但它自己设置里的“是否启用扩展”是关着的，请打开该开关',
+        'not-loaded': '已找到提示词模板，但它没有成功加载，请刷新酒馆；仍不行就按帖首重新安装',
+        missing: '没有检测到提示词模板（ST-Prompt-Template），请先安装并启用，再刷新酒馆',
+    })[status] ?? '请安装并启用提示词模板（ST-Prompt-Template）';
+}

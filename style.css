@@ -1,0 +1,108 @@
+@import url('./src/ui/style.css');
+.dwm-fallback { max-width: 560px; padding: 24px; border: 1px solid #666; border-radius: 12px; background: #20232a; color: #eee; }
+.dwm-fallback button { margin: 8px; padding: 8px 14px; cursor: pointer; }
+.dwm-fallback::backdrop { background: #0009; }
+
+/* One fixed, nonmodal layer. The surrounding conversation remains interactive. */
+.dwm-floating-root {
+    --dwm-float-bg: var(--SmartThemeBlurTintColor, #f7f7f3);
+    --dwm-float-text: var(--SmartThemeBodyColor, #253c3b);
+    --dwm-float-muted: color-mix(in srgb, var(--dwm-float-text) 76%, var(--dwm-float-bg));
+    --dwm-float-accent: color-mix(in srgb, var(--dwm-float-text) 65%, #429a88);
+    --dwm-float-line: color-mix(in srgb, var(--dwm-float-text) 22%, var(--dwm-float-bg));
+    position: fixed; z-index: 10000; inset: 0 auto auto 0; width: 100vw; height: 100dvh;
+    box-sizing: border-box; pointer-events: none; overflow: clip;
+    padding: max(12px, var(--dwm-safe-top, env(safe-area-inset-top))) max(12px, var(--dwm-safe-right, env(safe-area-inset-right))) max(12px, var(--dwm-safe-bottom, env(safe-area-inset-bottom))) max(12px, var(--dwm-safe-left, env(safe-area-inset-left)));
+    color: var(--dwm-float-text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    text-align: left; text-shadow: none; color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+    .dwm-floating-root { --dwm-float-bg: var(--SmartThemeBlurTintColor, #182524); --dwm-float-text: var(--SmartThemeBodyColor, #e6eae5); }
+}
+.dwm-floating-root [hidden] { display: none !important; }
+.dwm-floating-root *, .dwm-floating-root *::before, .dwm-floating-root *::after { box-sizing: border-box; }
+.dwm-floating-root :is(button, select):focus-visible { outline: 3px solid var(--dwm-float-accent); outline-offset: 3px; }
+.dwm-floating-root .dwm-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+#dwm-management-dialog {
+    /* The manager places the window (left/top/width/height); these are the fallbacks. */
+    position: absolute; top: 12px; right: 12px; width: min(1040px, calc(100% - 24px)); height: min(780px, 78%);
+    display: flex; flex-direction: column; min-width: 0; min-height: 0; margin: 0; padding: 0; overflow: hidden; pointer-events: auto;
+    border: 1px solid var(--dwm-float-line); border-radius: 14px; color: var(--dwm-float-text); background: var(--dwm-float-bg);
+    box-shadow: 0 18px 56px #0004, 0 2px 8px #0002;
+}
+#dwm-management-dialog[data-layout='window'] { right: auto; }
+#dwm-management-dialog[data-layout='maximized'] { inset: max(12px, var(--dwm-toolbar-bottom, 0px), var(--dwm-safe-top, env(safe-area-inset-top))) max(12px, var(--dwm-safe-right, env(safe-area-inset-right))) max(12px, var(--dwm-safe-bottom, env(safe-area-inset-bottom))) max(12px, var(--dwm-safe-left, env(safe-area-inset-left))); width: auto; height: auto; }
+#dwm-management-dialog[data-layout='compact'] { inset: max(var(--dwm-toolbar-bottom, 0px), var(--dwm-safe-top, env(safe-area-inset-top, 0px))) var(--dwm-safe-right, env(safe-area-inset-right, 0px)) var(--dwm-safe-bottom, env(safe-area-inset-bottom, 0px)) var(--dwm-safe-left, env(safe-area-inset-left, 0px)); width: auto; height: auto; border-radius: 0; border: 0; }
+.dwm-management-chrome { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; min-width: 0; height: 46px; padding: 0 6px 0 14px; border-bottom: 1px solid var(--dwm-float-line); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; }
+#dwm-management-dialog:not([data-layout='window']) .dwm-management-chrome { cursor: default; touch-action: auto; }
+.dwm-management-chrome:active { cursor: grabbing; }
+.dwm-management-heading { display: flex; align-items: center; gap: 8px; flex: 0 1 auto; min-width: min-content; }
+.dwm-management-logo { flex: 0 0 22px; width: 22px; height: 22px; fill: none; stroke: var(--dwm-float-accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.dwm-management-heading strong { font-size: 14px; font-weight: 650; color: inherit; flex: 0 0 auto; white-space: nowrap; }
+.dwm-management-subtitle { min-width: 0; font-size: 12px; color: var(--dwm-float-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dwm-management-status { display: flex; justify-content: flex-end; flex: 1 1 auto; min-width: 0; cursor: auto; }
+.dwm-floating-root .dwm-management-icon { appearance: none; display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; padding: 0; margin: 0; border: 0; border-radius: 7px; color: var(--dwm-float-muted); background: transparent; cursor: pointer; touch-action: manipulation; }
+.dwm-management-icon > svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.dwm-floating-root .dwm-management-icon:hover { color: var(--dwm-float-text); background: color-mix(in srgb, var(--dwm-float-text) 9%, var(--dwm-float-bg)); }
+.dwm-management-body { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden; }
+.dwm-management-body > * { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; }
+.dwm-resize { position: absolute; z-index: 12; touch-action: none; }
+#dwm-management-dialog:not([data-layout='window']) .dwm-resize { display: none; }
+.dwm-resize-n, .dwm-resize-s { left: 12px; right: 12px; height: 8px; cursor: ns-resize; }
+.dwm-resize-n { top: -3px; } .dwm-resize-s { bottom: -3px; }
+.dwm-resize-e, .dwm-resize-w { top: 12px; bottom: 12px; width: 8px; cursor: ew-resize; }
+.dwm-resize-e { right: -3px; } .dwm-resize-w { left: -3px; }
+.dwm-resize-ne, .dwm-resize-nw, .dwm-resize-se, .dwm-resize-sw { width: 16px; height: 16px; }
+.dwm-resize-ne { top: -3px; right: -3px; cursor: nesw-resize; } .dwm-resize-sw { bottom: -3px; left: -3px; cursor: nesw-resize; }
+.dwm-resize-nw { top: -3px; left: -3px; cursor: nwse-resize; } .dwm-resize-se { bottom: -3px; right: -3px; cursor: nwse-resize; }
+.dwm-resize-se::after { content: ''; position: absolute; right: 6px; bottom: 6px; width: 9px; height: 9px; opacity: .4; background: linear-gradient(135deg, transparent 45%, currentColor 45% 53%, transparent 53% 68%, currentColor 68% 76%, transparent 76%); }
+
+.dwm-floating-root .dwm-floating-bubble {
+    appearance: none; position: absolute; display: flex; align-items: center; gap: 8px; width: max-content; min-width: 132px; max-width: calc(100% - 24px); min-height: 58px;
+    margin: 0; padding: 9px 12px; border: 1px solid var(--dwm-float-line); border-radius: 20px 20px 8px 20px; pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none;
+    color: var(--dwm-float-text); background: var(--dwm-float-bg); box-shadow: 0 4px 20px #0002, 0 1px 4px #0002;
+    font: inherit; text-align: left; text-shadow: none; cursor: grab; transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+.dwm-floating-root[data-edge='left'] .dwm-floating-bubble { border-radius: 20px 20px 20px 8px; }
+.dwm-floating-bubble:hover { box-shadow: 0 5px 24px #0003, 0 1px 4px #0002; }
+.dwm-floating-bubble:active, .dwm-floating-bubble[data-dragging='true'] { cursor: grabbing; background: color-mix(in srgb, var(--dwm-float-text) 8%, var(--dwm-float-bg)); }
+.dwm-bubble-fish { flex: 0 0 26px; width: 26px; height: 26px; fill: none; stroke: var(--dwm-float-accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.dwm-bubble-copy { display: grid; gap: 1px; min-width: 0; pointer-events: none; }
+.dwm-bubble-name { font-size: 15px; line-height: 1.3; font-weight: 650; letter-spacing: .05em; }
+.dwm-bubble-status { font-size: 12px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dwm-float-muted); }
+.dwm-floating-bubble[data-state='busy'] { border-color: var(--dwm-float-accent); }
+.dwm-floating-bubble[data-state='attention'] .dwm-bubble-status { text-decoration: underline dotted; text-underline-offset: 3px; }
+.dwm-floating-root[data-bubble-size='compact'] .dwm-floating-bubble { width: 44px; height: 44px; min-width: 0; min-height: 0; padding: 0; justify-content: center; border-radius: 50%; }
+.dwm-floating-root[data-bubble-size='compact'] .dwm-bubble-copy { display: none; }
+.dwm-floating-root[data-bubble-size='compact'] .dwm-bubble-fish { flex-basis: 24px; width: 24px; height: 24px; }
+.dwm-floating-root[data-bubble-size='compact'] .dwm-floating-bubble[data-state='busy']::after,
+.dwm-floating-root[data-bubble-size='compact'] .dwm-floating-bubble[data-state='attention']::after { content: ''; position: absolute; top: 3px; right: 3px; width: 9px; height: 9px; border-radius: 50%; background: var(--dwm-float-accent); box-shadow: 0 0 0 2px var(--dwm-float-bg); }
+
+@media (max-width: 480px) {
+    .dwm-management-chrome { padding-left: 12px; }
+    .dwm-management-subtitle { display: none; }
+    .dwm-management-body :is(input:not([type='checkbox']), select, textarea) { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .dwm-floating-root * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Match the host's .drawer layout, without registering a fake native drawer.
+ * Icon size/padding/opacity/hover/transition come from its .drawer-icon rules. */
+#dwm-toolbar-entry { display: flex; align-items: center; justify-content: center; flex-flow: row; width: 100%; }
+#dwm-toolbar-button { appearance: none; margin: 0; border: 0; border-radius: 0; background: transparent; color: inherit; }
+#dwm-toolbar-button:focus-visible { opacity: 1; outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* 超级懒人模式: a narrow window that grows with its content, and a yellow dot on every entry when the player must look. */
+#dwm-management-dialog[data-variant='lazy'][data-layout='window'] { height: auto; }
+#dwm-management-dialog[data-variant='lazy'] .dwm-resize { display: none; }
+.dwm-floating-root { --dwm-float-warn: #b88a2e; }
+.dwm-floating-root .dwm-floating-bubble[data-attention='true'] { border-color: var(--dwm-float-warn); }
+.dwm-floating-root[data-bubble-size='compact'] .dwm-floating-bubble[data-state='attention'][data-attention='true']::after { background: var(--dwm-float-warn); }
+#dwm-toolbar-button { position: relative; }
+#dwm-toolbar-button[data-dwm-attention='true'] { opacity: 1; }
+#dwm-toolbar-button[data-dwm-attention='true']::after { content: ''; position: absolute; top: 18%; right: 14%; width: 8px; height: 8px; border-radius: 50%; background: #b88a2e; box-shadow: 0 0 0 2px var(--SmartThemeBlurTintColor, #222); }
+.dwm-ext-dot { display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 50%; background: #b88a2e; vertical-align: middle; }
+:is(.dwm-ext-dot, .dwm-ext-status)[hidden] { display: none; }
+.dwm-ext-status { margin: 6px 0; font-size: 12.5px; line-height: 1.55; opacity: .85; }
+.dwm-ext-status b { font-weight: 600; }
+.dwm-ext-status.dwm-ext-attention b { color: #b88a2e; }
