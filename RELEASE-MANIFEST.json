@@ -122,8 +122,8 @@
     },
     {
       "path": "src/agents/prompts.js",
-      "bytes": 16737,
-      "sha256": "5f8d915ad088a2650cf302bf6aaba1fb1f62e6bc68601ca7d25650c351568c5b"
+      "bytes": 16985,
+      "sha256": "d094282c92b77352585a6805655b18619ab1ab57bd415815decce89664a7122a"
     },
     {
       "path": "src/agents/requests.js",
@@ -282,8 +282,8 @@
     },
     {
       "path": "src/ui/panel.js",
-      "bytes": 146398,
-      "sha256": "ce28d911a2c70304719cda173f5b8450c4070c1d031eb2ce4af545580281e975"
+      "bytes": 147037,
+      "sha256": "4b59d2bb5c75faa7987cee51218436e5d72b26628a98aa546207198db9604b0a"
     },
     {
       "path": "src/ui/prompt-preview.js",
