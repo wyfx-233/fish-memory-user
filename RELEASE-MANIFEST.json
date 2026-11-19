@@ -187,8 +187,8 @@
     },
     {
       "path": "src/core/store.js",
-      "bytes": 38305,
-      "sha256": "48444e7d4a25aff9e9e0c00e4d7a97919e2d54b5c385c29a6a1ec31449bad150"
+      "bytes": 39053,
+      "sha256": "e91df42b7f9290dc2f3e5674266206c24b4c3f5517a1a996afae7fc680cbe44d"
     },
     {
       "path": "src/core/transfer.js",
@@ -282,8 +282,8 @@
     },
     {
       "path": "src/ui/panel.js",
-      "bytes": 145027,
-      "sha256": "247c32e705a90e7c425c238a36620a03bc7231d111ba17ef193a7233d6ac14f0"
+      "bytes": 146398,
+      "sha256": "ce28d911a2c70304719cda173f5b8450c4070c1d031eb2ce4af545580281e975"
     },
     {
       "path": "src/ui/prompt-preview.js",

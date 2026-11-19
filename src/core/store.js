@@ -393,6 +393,15 @@ export class MemoryStore {
                     invariant(!data.messageScopes[key] || data.messageScopes[key] === scopeId, '已确认的正文范围不能改写');
                     data.messageScopes[key] = normalizeScopeId(scopeId);
                 }
+            } else if (action.type === 'delete-entry') {
+                // Player deletion is permanent for this save: it leaves the base as
+                // well, so a reroll cannot bring the entry back.
+                invariant(entry, '条目不存在');
+                invariant(action.confirmed === true, '删除条目需要确认');
+                if (action.expectedVersion !== undefined) invariant(action.expectedVersion === entry.version, '条目已更新，请先检查新版再删除');
+                delete data.entries[action.id];
+                if (baseline.base.entries[action.id]) delete baseline.base.entries[action.id];
+                if (baseline.sourceHeld?.[action.id]) delete baseline.sourceHeld[action.id];
             } else if (action.type === 'create-entry') {
                 // Player-authored entry: no source, no evidence, and by default not
                 // writable by the auxiliary model, so background upkeep cannot bloat it.

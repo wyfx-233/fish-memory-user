@@ -13,7 +13,7 @@ const KIND_NAMES = { fact: '设定', rule: '规则', npc: '人物', npc_pool: '�
 const TASK_NAMES = { initialize: '扫描世界书', strategy: '统合记忆策略', maintain: '后台整理', select: '发送前选材', compact: '整理事件', preferences: '扫描预设', sourceMerge: '合并原书更新' };
 const REASONS = { 'extra-book': '从其他世界书加入', maintenance: '后台整理', compact: '整理记忆', compaction: '整理记忆', 'source-sync': '同步原书', 'inventory-catchup': '补记物品',
     edit: '编辑正文', reset: '复原', classify: '调整保护', promote: '晋升人物', 'promote-from-pool': '从路人建立条目',
-    tier: '调整档位', tiers: '批量调整档位', 'tier-reset': '恢复扫描档位', 'import-memory': '导入旧总结', 'create-entry': '新建条目' };
+    tier: '调整档位', tiers: '批量调整档位', 'tier-reset': '恢复扫描档位', 'import-memory': '导入旧总结', 'create-entry': '新建条目', 'delete-entry': '删除条目' };
 let panelSequence = 0;
 const textOf = entry => (entry?.segments ?? []).map(segment => segment.text).join('');
 const display = value => typeof value === 'string' ? value : JSON.stringify(value, null, 2) ?? '';
@@ -739,6 +739,8 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
             titleRow.append(button('复原', () => { restoreId = entry.id; restoreTier = true; dialog = 'restore'; render(); },
                 { key: `restore-${entry.id}`, ghost: true, disabled: !changed || Boolean(view.activity), title: changed ? '恢复为扫描或同步时的版本，并清除该条目的改动记录' : '当前与初始版本一致' }));
         }
+        titleRow.append(button('删除', () => { restoreId = entry.id; dialog = 'delete'; render(); },
+            { key: `delete-${entry.id}`, ghost: true, danger: true, disabled: Boolean(view.activity), title: '把这一条从本存档移除，不再发送，也不会随剧情回滚恢复' }));
         head.append(titleRow, h('p', 'dwm-muted', `来源：${sourceNames[sourceOf(entry)]}`));
         if (entry.source?.book && entry.source.book !== view.sourceBook) head.append(h('p', 'dwm-muted', `来自「${entry.source.book}」· UID ${entry.source.uid}`));
         const meta = [KIND_NAMES[entry.kind] ?? entry.kind, from === 'new' ? (entry.origin === 'import' ? '导入的旧总结' : '鱼忆新增') : from === 'changed' ? '存在改动' : '无改动',
@@ -1023,6 +1025,16 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
                 await controller.manual({ type: clearing ? 'audit-clear' : 'restore-entry', id: restoreId, withTier: restoreTier, confirmed: true });
                 entryDrafts.delete(restoreId); close();
             }, clearing ? '记录已清除' : '条目已复原'), { danger: true, disabled: unavailable || !entry })));
+        } else if (dialog === 'delete') {
+            const entry = view.save?.data.entries[restoreId];
+            box.setAttribute('aria-label', '删除条目');
+            box.append(h('h3', '', '删除条目'), h('p', '', entry?.title ?? '条目已不存在'),
+                h('p', 'dwm-muted', '这一条会从本存档移除：不再发送，后台不再整理，剧情回滚也不会把它带回来。原世界书里如果还有它，酒馆仍会照原书设置发送。'),
+                h('p', 'dwm-warning', '删掉后无法在面板里恢复，只能重新扫描或重新新建。'));
+            box.append(row(button('取消', close, { navigation: true, ghost: true }), button('确认删除', () => call(async () => {
+                await controller.manual({ type: 'delete-entry', id: restoreId, expectedVersion: entry?.version, confirmed: true });
+                entryDrafts.delete(restoreId); selected = null; close();
+            }, '条目已删除'), { danger: true, disabled: unavailable || !entry })));
         } else if (dialog === 'export') {
             box.setAttribute('aria-label', '导出为世界书');
             box.append(h('h3', '', '导出为世界书'), h('p', 'dwm-muted', '把鱼忆改过的世界书存成一本新的酒馆世界书，故事脉络和物品也在里面。导入酒馆，绑给新聊天就能接着用。'));
