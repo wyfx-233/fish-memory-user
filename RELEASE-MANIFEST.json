@@ -167,8 +167,8 @@
     },
     {
       "path": "src/core/operations.js",
-      "bytes": 12221,
-      "sha256": "d0b8a28d7f46d12e5d3fe0925533e9276a33dacd264db420490f02b27df802b3"
+      "bytes": 13614,
+      "sha256": "b25f5c245929ebae2258bbc73741a541f4032dea8e89963453a99c5ca40b7131"
     },
     {
       "path": "src/core/source-book.js",

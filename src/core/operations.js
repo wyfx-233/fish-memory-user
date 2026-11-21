@@ -49,11 +49,31 @@ export function applyMaintenance(data, result, { allowedEvidence = [], maxChars 
         } else if (op.type === 'create') {
             invariant(['fact', 'npc', 'npc_pool', 'event'].includes(op.kind), '后置不能创建规则或其他专用条目');
             invariant(op.evidence?.length > 0, '新建资料需要剧情依据');
-            const entry = createEntry({ id: idFactory('entry'), scopeId, title: op.title, kind: op.kind,
-                text: op.text, intro: op.intro, retrieveWhen: op.retrieveWhen,
-                important: Boolean(op.important && op.kind === 'npc'), evidence: evidence(op.evidence) });
-            next.entries[entry.id] = entry;
-            touched.add(entry.id);
+            const title = plainText(op.title, '条目名称', 500).trim();
+            // The same subject must stay one entry. A second create with the same
+            // title would fork the record and silently drop everything the first
+            // one established, so merge into it instead.
+            const key = title.toLocaleLowerCase();
+            const same = Object.values(next.entries).find(e => entryScope(e) === scopeId && e.kind === op.kind
+                && plainText(e.title ?? '', '条目名称', 500).trim().toLocaleLowerCase() === key);
+            if (same && same.enabled && same.segments.some(s => s.writable)) {
+                const segment = same.segments.find(s => s.writable);
+                const addition = plainText(op.text, '动态正文', 100000).trim();
+                if (addition && !segment.text.includes(addition)) {
+                    segment.text = plainText(`${segment.text}\n${addition}`.trim(), '动态正文', maxChars[same.id] ?? 100000);
+                }
+                if (op.intro) same.intro = plainText(op.intro, '简介', 2000);
+                if (op.retrieveWhen) same.retrieveWhen = plainText(op.retrieveWhen, '提取指导', 4000);
+                retainEvidence(same, evidence(op.evidence));
+                same.version++;
+                touched.add(same.id);
+            } else {
+                const entry = createEntry({ id: idFactory('entry'), scopeId, title, kind: op.kind,
+                    text: op.text, intro: op.intro, retrieveWhen: op.retrieveWhen,
+                    important: Boolean(op.important && op.kind === 'npc'), evidence: evidence(op.evidence) });
+                next.entries[entry.id] = entry;
+                touched.add(entry.id);
+            }
         } else if (op.type === 'update') {
             const e = next.entries[op.id];
             invariant(e && entryScope(e) === scopeId, '后置不能跨范围修改资料');
