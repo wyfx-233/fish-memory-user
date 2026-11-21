@@ -177,8 +177,8 @@
     },
     {
       "path": "src/core/state.js",
-      "bytes": 14382,
-      "sha256": "336409939130dc82eebd67ebb71b8274091d2e5d62c60d8a77d49a0c456d53a3"
+      "bytes": 14555,
+      "sha256": "73905b32c338fb077441c9cf08807549be4400ff91322dc4a831b92f0d8aa94c"
     },
     {
       "path": "src/core/storage-codec.js",
@@ -247,8 +247,8 @@
     },
     {
       "path": "src/runtime/controller.js",
-      "bytes": 192484,
-      "sha256": "ad665c2d9a06ca2954359621ee0bc473dfa538b0dde01073a01d2605b9baba99"
+      "bytes": 193066,
+      "sha256": "334181e922e443b23c44f44b08dd143e94252766a0309c147989b0252867372f"
     },
     {
       "path": "src/runtime/lazy-mode.js",
@@ -282,8 +282,8 @@
     },
     {
       "path": "src/ui/panel.js",
-      "bytes": 147695,
-      "sha256": "5edfae74be486d5b71ed6eb618bf731a8fe8c4c95f9b104bf85ef7cf8faed2f4"
+      "bytes": 148736,
+      "sha256": "69fe141b5f67d7996246661d535f794962f9d50147faae887ff9085e32466501"
     },
     {
       "path": "src/ui/prompt-preview.js",

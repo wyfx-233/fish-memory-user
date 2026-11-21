@@ -17,6 +17,9 @@ export const DEFAULT_SETTINGS = Object.freeze({
     scanConcurrency: 3,
     // Thinking effort for auxiliary tasks; 'inherit' follows the story preset.
     auxReasoningEffort: 'low',
+    // Extra instruction appended to every auxiliary request, independent of the
+    // story preset. Empty keeps the built-in task prompts untouched.
+    auxPrompt: '',
     auxiliaryStream: false,
     recentTurns: 12,
     batchChars: 18000,

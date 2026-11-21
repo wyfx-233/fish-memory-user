@@ -1320,6 +1320,16 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
                 value => call(() => controller.updateSettings({ auxReasoningEffort: value }), '思考强度已保存'), { key: 'effort', small: true }),
             { description: '只影响鱼忆的请求，思考越多越慢、越贵', helpKey: 'effort', helpText: '扫描、挑资料和整理用不着深度思考。模型不支持调节时此项不起作用。' }),
             timeoutSetting(current)));
+        const auxPromptBox = focusKey(h('textarea', 'dwm-body-editor'), 'aux-prompt');
+        auxPromptBox.value = current.auxPrompt ?? '';
+        auxPromptBox.setAttribute('placeholder', '留空＝只用鱼忆自带的任务提示词');
+        auxPromptBox.addEventListener('change', () => call(() => controller.updateSettings({ auxPrompt: auxPromptBox.value }), '辅助补充指令已保存'));
+        page.append(group(
+            setting('辅助模型补充指令', [
+                auxPromptBox,
+                button('保存', () => call(() => controller.updateSettings({ auxPrompt: auxPromptBox.value }), '辅助补充指令已保存'), { ghost: true }),
+            ], { description: '独立于酒馆预设，只加在鱼忆的辅助请求里', helpKey: 'aux-prompt',
+                helpText: '这段文字会追加到每次辅助请求（扫描、挑资料、整理）的末尾。别写会改变输出格式或让它写正文的要求，否则辅助任务会失败。留空即完全使用内置提示词。' })));
         page.append(group(renderMvu(view), ruleTool(), worldbookTool(view)));
         const npcAudit = typeof controller.compactNpcs === 'function'
             ? setting('立刻检查人物条目', button('立刻维护人物', () => call(() => controller.compactNpcs(), '人物条目已检查'),
