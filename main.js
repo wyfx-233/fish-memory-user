@@ -39,13 +39,21 @@ async function boot() {
             ].filter(entry => typeof entry.text === 'string' && entry.text.length > 8);
         },
     });
-    host.readPreset = () => {
+    host.readPreset = name => {
         if (SillyTavern.getContext().mainApi !== 'openai') return { name: '当前连接没有可读取的聊天补全预设', entries: [] };
         const manager = openai.promptManager;
+        // An auxiliary preset lets the helper model read its own rules while the
+        // story keeps using the active one.
+        let settings = openai.oai_settings;
+        if (typeof name === 'string' && name) {
+            const stored = manager?.getPresetSettings?.(name);
+            if (!stored) return { name, entries: [] };
+            settings = stored;
+        }
         const order = manager?.getPromptOrderForCharacter?.(manager.activeCharacter) ?? [];
-        return { name: openai.oai_settings?.preset_settings_openai ?? '',
-            entries: orderedPresetEntries(openai.oai_settings?.prompts ?? [], order) };
+        return { name: settings?.preset_settings_openai ?? (name || ''), entries: orderedPresetEntries(settings?.prompts ?? [], order) };
     };
+    host.listPresets = () => Object.keys(openai.promptManager?.getAllPresets?.() ?? {});
     const extensionSettings = context.extensionSettings ?? (await import('/scripts/extensions.js')).extension_settings;
     const freshInstall = extensionSettings.dwm == null;
     const settings = initialSettings(extensionSettings);

@@ -37,8 +37,8 @@
     },
     {
       "path": "main.js",
-      "bytes": 11599,
-      "sha256": "cf7aaa19d0594d1ec4d36a145eb01bd983447a5452b7c6dbf765323a50faa8eb"
+      "bytes": 12052,
+      "sha256": "3c24d56fac3b27384fa157200a415b821d173f164b533d1baa563dd06c4154f8"
     },
     {
       "path": "manifest.json",
@@ -177,8 +177,8 @@
     },
     {
       "path": "src/core/state.js",
-      "bytes": 14555,
-      "sha256": "73905b32c338fb077441c9cf08807549be4400ff91322dc4a831b92f0d8aa94c"
+      "bytes": 14541,
+      "sha256": "9a16888981ac606b458eacc6b1c0680a8c8763eabe366a23925bd6e03b97cddb"
     },
     {
       "path": "src/core/storage-codec.js",
@@ -247,8 +247,8 @@
     },
     {
       "path": "src/runtime/controller.js",
-      "bytes": 193066,
-      "sha256": "334181e922e443b23c44f44b08dd143e94252766a0309c147989b0252867372f"
+      "bytes": 192757,
+      "sha256": "560e025c2a1b8eba898b15325631e7dc1a589fc3b156b61f3d53c3042cd46008"
     },
     {
       "path": "src/runtime/lazy-mode.js",
@@ -282,8 +282,8 @@
     },
     {
       "path": "src/ui/panel.js",
-      "bytes": 148736,
-      "sha256": "69fe141b5f67d7996246661d535f794962f9d50147faae887ff9085e32466501"
+      "bytes": 148542,
+      "sha256": "37e49ba9e08045740e6e4bd1ab548330fdf57d74b06028503ca338f4f41a8e84"
     },
     {
       "path": "src/ui/prompt-preview.js",

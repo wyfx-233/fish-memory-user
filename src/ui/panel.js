@@ -1320,16 +1320,6 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
                 value => call(() => controller.updateSettings({ auxReasoningEffort: value }), '思考强度已保存'), { key: 'effort', small: true }),
             { description: '只影响鱼忆的请求，思考越多越慢、越贵', helpKey: 'effort', helpText: '扫描、挑资料和整理用不着深度思考。模型不支持调节时此项不起作用。' }),
             timeoutSetting(current)));
-        const auxPromptBox = focusKey(h('textarea', 'dwm-body-editor'), 'aux-prompt');
-        auxPromptBox.value = current.auxPrompt ?? '';
-        auxPromptBox.setAttribute('placeholder', '留空＝只用鱼忆自带的任务提示词');
-        auxPromptBox.addEventListener('change', () => call(() => controller.updateSettings({ auxPrompt: auxPromptBox.value }), '辅助补充指令已保存'));
-        page.append(group(
-            setting('辅助模型补充指令', [
-                auxPromptBox,
-                button('保存', () => call(() => controller.updateSettings({ auxPrompt: auxPromptBox.value }), '辅助补充指令已保存'), { ghost: true }),
-            ], { description: '独立于酒馆预设，只加在鱼忆的辅助请求里', helpKey: 'aux-prompt',
-                helpText: '这段文字会追加到每次辅助请求（扫描、挑资料、整理）的末尾。别写会改变输出格式或让它写正文的要求，否则辅助任务会失败。留空即完全使用内置提示词。' })));
         page.append(group(renderMvu(view), ruleTool(), worldbookTool(view)));
         const npcAudit = typeof controller.compactNpcs === 'function'
             ? setting('立刻检查人物条目', button('立刻维护人物', () => call(() => controller.compactNpcs(), '人物条目已检查'),
@@ -1365,6 +1355,15 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
         }
         const disabled = !view.save || Boolean(view.activity);
         page.append(heading('预设应用', h('span', 'dwm-muted', `${preset.name || '当前预设不可读取'} · 已应用 ${preset.stale ? 0 : preset.saved?.selectedIds?.length ?? 0} 条`)));
+        const names = view.presetNames ?? [];
+        if (names.length) {
+            const options = [['', '跟随酒馆当前预设'], ...names.map(name => [name, name])];
+            page.append(setting('辅助模型读取哪份预设',
+                selectField('预设', view.auxPresetName ?? '', options, value => call(() => controller.updateSettings({ auxPresetName: value }),
+                    value ? `鱼忆改用「${value}」` : '鱼忆跟随酒馆当前预设')).wrap,
+                { description: '只换鱼忆辅助请求的预设来源，酒馆正文不受影响', helpKey: 'aux-preset',
+                    helpText: '选一份专门给辅助模型准备的预设（语言、术语、称谓），下面的条目列表就会换成那份预设的内容。留空则和酒馆正文共用当前预设。' }));
+        }
         page.append(h('p', 'dwm-muted', '挑几条预设内容，一起交给鱼忆的辅助请求，比如文风、术语。只影响本存档里鱼忆的请求，不改酒馆正文的预设。'), helpButton('preset'));
         if (help.has('preset')) page.append(h('p', 'dwm-helptext', '“放前面”在鱼忆的任务之前，“放最后”在任务输入之后、整个请求的最后，默认沿用预设本身的位置。放最后的条目离输出最近，若要求写正文或改变输出格式，可能让辅助任务失败。条目越多，每次辅助请求越贵。'));
         if (preset.stale) page.append(h('p', 'dwm-warning', '原预设已变化，旧选择暂停应用。请重新检查并应用。'));

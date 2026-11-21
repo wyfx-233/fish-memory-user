@@ -168,11 +168,6 @@ export class Controller {
             const presetFingerprint = this.#preset().fingerprint, preferences = this.#auxiliaryPreferences();
             const application = this.#application(), applicationEntries = this.#applicationEntries();
             request = applyPresetApplication(applyAuxiliaryPreferences(request, preferences), applicationEntries);
-            // The player's own rule for the auxiliary model, independent of the story preset.
-            const extra = String(this.settings.auxPrompt ?? '').trim();
-            if (extra && request.purpose !== 'preferences') {
-                request = { ...request, system: `${request.system}\n\n玩家给辅助模型的补充指令（只作用于鱼忆的归档工作，不改变本任务职责与输出格式）：\n${extra}` };
-            }
             const epoch = this.#epoch, start = Date.now(), taskId = uid('stream'), regexSignature = this.host.promptRegexSignature?.();
             let progressAt = 0;
             const onProgress = progress => {
@@ -432,7 +427,7 @@ export class Controller {
         if (yielded) this.#state('后台整理暂歇，未记原文保留');
         return yielded;
     }
-    #preset() { return presetSnapshot(this.host.readPreset?.() ?? {}); }
+    #preset() { return presetSnapshot(this.host.readPreset?.(this.settings.auxPresetName || undefined) ?? {}); }
     #auxiliaryPreferences() { if (this.store?.state.preferences?.presetApplication) return []; return selectedPreferences(this.store?.state.preferences?.preset, this.#preset()); }
     #application() { return applicationSnapshot(this.host.readPreset?.() ?? {}); }
     #applicationEntries() { return selectedApplicationEntries(this.store?.state.preferences?.presetApplication, this.#application()); }
@@ -886,6 +881,7 @@ export class Controller {
             presetApplication: { ...application, saved: clone(this.store?.state.preferences?.presetApplication ?? null),
                 draft: clone(this.#applicationDraft), stale: Boolean(this.store?.state.preferences?.presetApplication
                     && this.store.state.preferences.presetApplication.fingerprint !== application.fingerprint) },
+            auxPresetName: this.settings.auxPresetName ?? '', presetNames: this.host.listPresets?.() ?? [],
             preset: { name: preset.name, available: Boolean(preset.entries.length),
                 stale: Boolean(this.store?.state.preferences?.preset && this.store.state.preferences.preset.fingerprint !== preset.fingerprint),
                 saved: clone(this.store?.state.preferences?.preset ?? null), draft: clone(this.#presetDraft) },
@@ -1183,7 +1179,7 @@ export class Controller {
         invariant(['append', 'rewrite'].includes(next.summaryMode), '脉络写法只能是追加或整段重写');
         invariant(Number.isInteger(next.scanConcurrency) && next.scanConcurrency >= 1 && next.scanConcurrency <= 6, '扫描并发数应为 1–6');
         invariant(REASONING_EFFORTS.includes(next.auxReasoningEffort), '辅助思考强度无效');
-        invariant(typeof next.auxPrompt === 'string' && next.auxPrompt.length <= 4000, '辅助补充指令最多 4000 字符');
+        invariant(typeof next.auxPresetName === 'string' && next.auxPresetName.length <= 200, '辅助预设名称无效');
         invariant(Number.isInteger(next.maintenanceEvery) && next.maintenanceEvery >= 1 && next.maintenanceEvery <= MAINTENANCE_EVERY_MAX, `自动维护间隔应为 1–${MAINTENANCE_EVERY_MAX} 次 AI 回复`);
         for (const key of ['timeoutMs', 'initializationTimeoutMs']) {
             invariant(validTimeout(next[key]), '辅助模型超时时间应为 0（关闭插件限时）或 1000–86400000 毫秒的整数');
