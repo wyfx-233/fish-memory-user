@@ -39,9 +39,12 @@ async function boot() {
             ].filter(entry => typeof entry.text === 'string' && entry.text.length > 8);
         },
     });
+    // Preset managers live in preset-manager.js; openai.promptManager is not always exposed.
+    const presetModule = await import('/scripts/preset-manager.js').catch(() => ({}));
+    const presetManagerFor = () => presetModule.getPresetManager?.('openai') ?? openai.promptManager ?? null;
     host.readPreset = name => {
         if (SillyTavern.getContext().mainApi !== 'openai') return { name: '当前连接没有可读取的聊天补全预设', entries: [] };
-        const manager = openai.promptManager;
+        const manager = presetManagerFor();
         // An auxiliary preset lets the helper model read its own rules while the
         // story keeps using the active one.
         let settings = openai.oai_settings;
@@ -53,7 +56,12 @@ async function boot() {
         const order = manager?.getPromptOrderForCharacter?.(manager.activeCharacter) ?? [];
         return { name: settings?.preset_settings_openai ?? (name || ''), entries: orderedPresetEntries(settings?.prompts ?? [], order) };
     };
-    host.listPresets = () => Object.keys(openai.promptManager?.getAllPresets?.() ?? {});
+    host.listPresets = () => {
+        try {
+            const list = presetManagerFor()?.getAllPresets?.();
+            return Array.isArray(list) ? list.filter(name => typeof name === 'string' && name) : [];
+        } catch { return []; }
+    };
     const extensionSettings = context.extensionSettings ?? (await import('/scripts/extensions.js')).extension_settings;
     const freshInstall = extensionSettings.dwm == null;
     const settings = initialSettings(extensionSettings);
