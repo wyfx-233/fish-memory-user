@@ -23,6 +23,7 @@ import { createTraceStore } from '../diagnostics/trace-store.js';
 import { buildPromptPreview } from '../diagnostics/prompt-preview.js';
 import { selectionMessages, requestBatches, INITIALIZATION_BATCH_ITEMS, isReadableMessage } from '../agents/requests.js';
 import { assemblePromptPlan, previewNarration } from './prompt-plan.js';
+import { COMPACT_NPC } from '../agents/prompts.js';
 
 export const batches = requestBatches;
 
@@ -2375,6 +2376,44 @@ export class Controller {
             return { executed: true, message: this.status, changed: result.operations.length > 0, before: info, after: this.#compactInfo(),
                 merged:result.operations.filter(op=>['mergeEvents','mergeEntries'].includes(op.type)).reduce((n,op)=>n+op.sources.length-1,0),condensed:result.operations.filter(op=>['summary','update'].includes(op.type)).length };
         } catch (error) { if (epoch === this.#epoch && !activity.signal.aborted) this.#state('整理未完成', error); throw error; }
+        finally { if (epoch === this.#epoch) this.#compacting = false; this.#endActivity(activity); }
+    }
+    /** One-off pass over the people records: strip plot retellings, fill stable
+     *  facts the summary established. Never touches events or the summary. */
+    async compactNpcs() {
+        invariant(this.store?.state.initialized, '请先初始化');
+        if (this.#worldbookOnly()) return { executed: false, reason: '仅动态世界书模式不维护人物条目' };
+        if (this.#compacting || this.#initializing || this.#selecting() || this.store.state.data.scopeContext?.deferPost) {
+            return { executed: false, reason: '当前任务尚未结束，稍后可以检查人物条目' };
+        }
+        const base = this.store.snapshot();
+        const scopeId = normalizeScopeId(base.data.scopeContext?.activeScopeId);
+        const people = Object.values(base.data.entries).filter(e => entryScope(e) === scopeId
+            && ['npc', 'npc_pool'].includes(e.kind) && canCompactEntry(e) && !evaluateRules(this.compiledRules, e).locked);
+        if (!people.length) return { executed: false, reason: '没有可维护的人物条目（可能都受保护或还没建立）' };
+        this.#compacting = true;
+        const activity = this.#beginActivity('compact', '正在检查人物条目');
+        const epoch = this.#epoch;
+        this.#state('正在检查人物条目');
+        try {
+            await this.#loadRules(epoch, base.chatId, activity.signal);
+            invariant(!this.sourceChanges.changed, '原书已变化，请先同步变化的条目。');
+            const result = await compact(this.client, this.#guarded(base), activity.signal, scopeId,
+                { kinds: ['npc', 'npc_pool'], system: COMPACT_NPC });
+            this.#assertActivity(activity);
+            await this.#assertSourceCurrent(activity);
+            await this.#afterSelection(activity);
+            const current = this.store.snapshot();
+            result.operations = result.operations.filter(op => op.type === 'update'
+                && current.data.entries[op.id]?.version === base.data.entries[op.id]?.version);
+            const evidence = [...new Set(Object.values(base.data.entries).filter(e => entryScope(e) === scopeId).flatMap(e => e.evidence))];
+            this.#validateGuarded(current, result, evidence, scopeId);
+            if (result.operations.length) await this.#saveActivity(activity, () => this.store.commit(result, { expectedRevision: current.revision,
+                sourceKeys: current.processed, allowedEvidence: evidence, maxChars: this.#maxChars(current), reason: 'compact-npc', scopeId }));
+            this.#assertActivity(activity);
+            this.#state(result.operations.length ? `已检查 ${people.length} 条人物条目，修订 ${result.operations.length} 条` : `已检查 ${people.length} 条人物条目，没有需要修订的地方`);
+            return { executed: true, message: this.status, changed: result.operations.length > 0 };
+        } catch (error) { if (epoch === this.#epoch && !activity.signal.aborted) this.#state('人物检查未完成', error); throw error; }
         finally { if (epoch === this.#epoch) this.#compacting = false; this.#endActivity(activity); }
     }
     #compactInfo() {

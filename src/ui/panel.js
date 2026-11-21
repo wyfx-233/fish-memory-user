@@ -1321,9 +1321,15 @@ export function mountPanel(container, controller, { exportProblem, statusSlot = 
             { description: '只影响鱼忆的请求，思考越多越慢、越贵', helpKey: 'effort', helpText: '扫描、挑资料和整理用不着深度思考。模型不支持调节时此项不起作用。' }),
             timeoutSetting(current)));
         page.append(group(renderMvu(view), ruleTool(), worldbookTool(view)));
+        const npcAudit = typeof controller.compactNpcs === 'function'
+            ? setting('立刻检查人物条目', button('立刻维护人物', () => call(() => controller.compactNpcs(), '人物条目已检查'),
+                { disabled: !view.save?.initialized || Boolean(view.activity) }),
+            { description: '删掉人物条目里混进来的剧情经过，补上脉络已确立但漏记的稳定信息',
+                helpKey: 'npc-audit', helpText: '只改人物条目：外貌、服饰、性格、说话方式、能力、关系、来历。事件与脉络不动。会调用一次辅助模型。' })
+            : null;
         const rescan = setting('重新扫描整个存档', button(view.save?.initialized ? '重新扫描…' : '初始化存档', () => initialize(view), { danger: true, disabled: !view.save || Boolean(view.activity) }),
             { description: '以当前世界书重建全部动态资料，现有改动不保留。建议先备份。' });
-        page.append(group(rescan));
+        page.append(group(npcAudit, rescan));
     }
     function timeoutSetting(current) {
         const values = timeoutDraft ?? Object.fromEntries(['initializationTimeoutMs', 'timeoutMs'].map(key => [key, current[key] ?? DEFAULT_SETTINGS[key]]));

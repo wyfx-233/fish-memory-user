@@ -96,6 +96,14 @@ mergeEntries格式：{"type":"mergeEntries","sources":[{"id":"旧事件id","expe
 不得合并原书条目、外部世界书来源条目、玩家导入总结或含受保护片段的资料。保留当前有效事实与原有身份；单条精简用update，不新造事实。
 ${TASK_COMPLETION}`;
 
+export const COMPACT_NPC = `${COMMON}
+任务：专项检查本档的人物条目。逐条判断两件事。
+1. 正文里是否混进了"这一轮／这几天做了什么"的经过叙述。人物条目只放影响后续演绎的稳定信息：外貌、服饰、性格、说话方式、能力与限制、与玩家及他人的关系、来历背景；经过属于事件条目。把经过删掉。
+2. 对照常驻脉络，是否遗漏了已经确立的稳定信息（能力觉醒或受伤、身份揭晓、立场改变、关系转变、重要约定）。用 update 补上，只写变化之后的状态，不写过程。
+只返回 update 操作：不新建、不合并、不改脉络、不动事件条目。每条人物至多一次 update，必须保留它已有的能力、来历与关系，不能因为删经过而把设定一起丢掉。
+输出 {"operations":[{"type":"update","id":"人物条目id","expectedVersion":1,"segments":[{"id":"可写片段id","text":"修订后的该片段全文"}],"intro":"最新一句话简介","retrieveWhen":"提取时机","evidence":["输入中已有的来源key"]}]}；无需修改就返回 {"operations":[]}。
+${TASK_COMPLETION}`;
+
 export const SOURCE_MERGE = `${COMMON}
 任务：角色卡作者更新了原世界书中的这些条目，而本存档的动态版本此前已根据剧情改写过。每条给出 oldSource（作者旧原文）、newSource（作者新原文，只给出可写片段；受保护片段不提供给你，由程序原样保留）与 current（本存档当前的动态正文）。
 请为每条重写 newSource 中 writable=true 的片段：以作者新原文为设定基础，保留 current 里由剧情造成、在新原文下仍然成立的变化；新原文改写或否定的设定以新原文为准；无法判断时以新原文为准并在 note 里说明。不得编造双方都没有的内容，不得改动 writable=false 片段。

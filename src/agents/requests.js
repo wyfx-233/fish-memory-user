@@ -64,11 +64,14 @@ export function selectRequest(save, messages, { eligible = () => true, selection
             ...(Number.isInteger(messageCount) ? { progress: { messageCount } } : {}),
             messages: messages.map(({ key, role, content }) => ({ key, role: sourceRole(role), content, source: '存档正文' })) }, Object.keys(save.data.entries)) };
 }
-export function compactRequest(save, scopeId = GLOBAL_SCOPE, { summaryOnly = false } = {}) {
+export function compactRequest(save, scopeId = GLOBAL_SCOPE, { summaryOnly = false, kinds = null, system = null } = {}) {
     const memory = maintenanceView(save, scopeId);
     delete memory.catalog;
-    memory.entries = memory.entries.filter(e => !summaryOnly && canCompactEntry(save.data.entries[e.id])).map(e => ({ ...e, mergeable: true }));
-    return { purpose: 'compact', system: COMPACT, input: { memory, ...referenceInstructions(memory) } };
+    memory.entries = memory.entries
+        .filter(e => !summaryOnly && canCompactEntry(save.data.entries[e.id]) && (!kinds || kinds.includes(save.data.entries[e.id].kind)))
+        // A kind-limited pass never merges: it must not fold an event into a person.
+        .map(e => ({ ...e, mergeable: !kinds }));
+    return { purpose: 'compact', system: system ?? COMPACT, input: { memory, ...referenceInstructions(memory) } };
 }
 export function requestBatches(items, maxChars, text = item => item.content, maxItems = Infinity) {
     const result = []; let current = [], size = 0;

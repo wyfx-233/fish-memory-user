@@ -122,13 +122,13 @@
     },
     {
       "path": "src/agents/prompts.js",
-      "bytes": 17585,
-      "sha256": "7045799f56b8485a6938c85411e3f13254728d3689a4b20527caa772160a4a5d"
+      "bytes": 18758,
+      "sha256": "e7a9c68fe06d04dd31cc6f02061e1f07f1bf586226cedfe2dc257ece41c69146"
     },
     {
       "path": "src/agents/requests.js",
-      "bytes": 8097,
-      "sha256": "f0e9a2792f39af1a8fda5fc7f21c57869135847d8ddc00ee43c47af0f19b2eac"
+      "bytes": 8305,
+      "sha256": "3517c88b8633cce86e5ba92978b429ea9198906e0c21d3860c12aa884f61a513"
     },
     {
       "path": "src/agents/selection-codec.js",
@@ -147,8 +147,8 @@
     },
     {
       "path": "src/agents/tasks.js",
-      "bytes": 17729,
-      "sha256": "7175ebaa79e1ea5124eb17c044457e1317cda8d5e98e11726fc3e68500377ab3"
+      "bytes": 17773,
+      "sha256": "e527744771e41680c185a7a2e1d11dd21a0089bf029c21fe9fa321e6d60d5d26"
     },
     {
       "path": "src/core/capacity.js",
@@ -247,8 +247,8 @@
     },
     {
       "path": "src/runtime/controller.js",
-      "bytes": 188695,
-      "sha256": "461b575a245e5f665640aff31bad89635803b79317f9bb497b09f30cce48dff1"
+      "bytes": 191940,
+      "sha256": "2ba00228be84c4b63e982a8aa6c9892f6e02930c3e524dc53ae0e605caaaf914"
     },
     {
       "path": "src/runtime/lazy-mode.js",
@@ -282,8 +282,8 @@
     },
     {
       "path": "src/ui/panel.js",
-      "bytes": 147037,
-      "sha256": "4b59d2bb5c75faa7987cee51218436e5d72b26628a98aa546207198db9604b0a"
+      "bytes": 147695,
+      "sha256": "5edfae74be486d5b71ed6eb618bf731a8fe8c4c95f9b104bf85ef7cf8faed2f4"
     },
     {
       "path": "src/ui/prompt-preview.js",

@@ -132,8 +132,8 @@ export async function select(client, save, messages, { eligible = () => true, se
         return decodeSelectionIds(request.input, ids);
     });
 }
-export async function compact(client, save, signal, scopeId = GLOBAL_SCOPE, { summaryOnly = false } = {}) {
-    const request = compactRequest(save, scopeId, { summaryOnly }), memory=request.input.memory;
+export async function compact(client, save, signal, scopeId = GLOBAL_SCOPE, { summaryOnly = false, kinds = null, system = null } = {}) {
+    const request = compactRequest(save, scopeId, { summaryOnly, kinds, system }), memory=request.input.memory;
     const plans=compactPlans(request), operations=[], summaries=[], fragments=new Map();
     let summaryChanged=false;
     for(const plan of plans){
