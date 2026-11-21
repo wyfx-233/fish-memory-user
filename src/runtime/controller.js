@@ -2404,9 +2404,19 @@ export class Controller {
             await this.#assertSourceCurrent(activity);
             await this.#afterSelection(activity);
             const current = this.store.snapshot();
-            result.operations = result.operations.filter(op => op.type === 'update'
-                && current.data.entries[op.id]?.version === base.data.entries[op.id]?.version);
             const evidence = [...new Set(Object.values(base.data.entries).filter(e => entryScope(e) === scopeId).flatMap(e => e.evidence))];
+            result.operations = result.operations
+                .filter(op => op.type === 'update' && current.data.entries[op.id]?.version === base.data.entries[op.id]?.version)
+                // Trimming prose needs no new plot evidence; reuse what the entry
+                // already carries so the commit stays verifiable.
+                .map(op => {
+                    if (!op.evidence?.length) {
+                        const own = base.data.entries[op.id]?.evidence ?? [];
+                        op.evidence = own.length ? [own[0]] : (evidence.length ? [evidence[0]] : []);
+                    }
+                    return op;
+                })
+                .filter(op => op.evidence.length > 0);
             this.#validateGuarded(current, result, evidence, scopeId);
             if (result.operations.length) await this.#saveActivity(activity, () => this.store.commit(result, { expectedRevision: current.revision,
                 sourceKeys: current.processed, allowedEvidence: evidence, maxChars: this.#maxChars(current), reason: 'compact-npc', scopeId }));

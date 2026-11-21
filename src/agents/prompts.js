@@ -93,6 +93,7 @@ update必须保留至少一个输入给出的evidence，expectedVersion等于该
 第三种是将描述同一对象或同一段经历、且类型相同的至少两个自建条目整合为一个的mergeEntries。
 mergeEntries格式：{"type":"mergeEntries","sources":[{"id":"旧事件id","expectedVersion":1},{"id":"另一旧事件id","expectedVersion":2}],"targetId":"可选，必须为sources中的id","title":"合并后标题","intro":"一句话目录","retrieveWhen":"何时回查","text":"保留因果、重要约定和关系来历的紧凑详情","evidence":["来源key"]}。
 合并成功后原目录项收拢为一项；不要合并不相关事件，不丢仍有效承诺。只能合并mergeable=true的自建可写条目，不得合并原书来源条目。本次evidence只能使用输入给出的来源key，expectedVersion必须匹配。
+每一次 update 都必须带非空 evidence；只是删去经过叙述时，沿用该条目输入中已有的来源key即可，不要让 evidence 留空。
 不得合并原书条目、外部世界书来源条目、玩家导入总结或含受保护片段的资料。保留当前有效事实与原有身份；单条精简用update，不新造事实。
 ${TASK_COMPLETION}`;
 
